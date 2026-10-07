@@ -3,7 +3,6 @@
 The same Notes app from Module 10's App Router edition, connected to a
 real MySQL server instead of SQLite, with validation and error
 handling made explicit throughout.
-aaa
 
 ## Module Objectives
 
