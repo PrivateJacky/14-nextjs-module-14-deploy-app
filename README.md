@@ -3,6 +3,7 @@
 The same Notes app from Module 10's App Router edition, connected to a
 real MySQL server instead of SQLite, with validation and error
 handling made explicit throughout.
+aaa
 
 ## Module Objectives
 
@@ -35,20 +36,27 @@ Nothing to create in MySQL first — the app creates its own database
 
 ## What actually changed from Module 10
 
-| | Module 10 | Module 11 |
-|---|---|---|
-| Database | SQLite (`data/app.db`, a local file) | MySQL (a real server, tested against MAMP) |
-| Driver | `better-sqlite3`, synchronous | `mysql2`, asynchronous — every function needs `await` |
-| Validation | One inline check (non-empty text) | A dedicated `lib/validation.js` — length, type, and id checks |
-| Error handling | Implicit — an unhandled throw would crash the request | Explicit `try/catch` around every database call, safe error responses, real errors logged server-side |
-| Auth, Context, UI | — | Unchanged, reused exactly as built in Modules 9–10 |
+|                   | Module 10                                             | Module 11                                                                                             |
+| ----------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Database          | SQLite (`data/app.db`, a local file)                  | MySQL (a real server, tested against MAMP)                                                            |
+| Driver            | `better-sqlite3`, synchronous                         | `mysql2`, asynchronous — every function needs `await`                                                 |
+| Validation        | One inline check (non-empty text)                     | A dedicated `lib/validation.js` — length, type, and id checks                                         |
+| Error handling    | Implicit — an unhandled throw would crash the request | Explicit `try/catch` around every database call, safe error responses, real errors logged server-side |
+| Auth, Context, UI | —                                                     | Unchanged, reused exactly as built in Modules 9–10                                                    |
 
 ## How each objective maps to the code
 
 ### 1. Connecting to MongoDB/MySQL → `lib/db.js`
 
 ```js
-pool = mysql.createPool({ host, port, user, password, database, connectionLimit: 5 });
+pool = mysql.createPool({
+  host,
+  port,
+  user,
+  password,
+  database,
+  connectionLimit: 5,
+});
 ```
 
 A connection **pool**, not a single connection — MySQL can genuinely
@@ -87,14 +95,14 @@ export function validateText(text) {
 Every case tested directly against the running app, not just written
 and assumed:
 
-| Situation | Response |
-|---|---|
-| Empty text | `400 { error: "Text is required" }` |
-| Text over 200 characters | `400 { error: "Text must be 200 characters or fewer" }` |
-| Non-string text | `400 { error: "Text must be a string" }` |
-| Non-numeric id in the URL | `400 { error: "Note id must be a number" }` |
-| Valid id, no matching note | `404 { error: "Note not found" }` |
-| No session | `401 { error: "Not authenticated" }` |
+| Situation                  | Response                                                |
+| -------------------------- | ------------------------------------------------------- |
+| Empty text                 | `400 { error: "Text is required" }`                     |
+| Text over 200 characters   | `400 { error: "Text must be 200 characters or fewer" }` |
+| Non-string text            | `400 { error: "Text must be a string" }`                |
+| Non-numeric id in the URL  | `400 { error: "Note id must be a number" }`             |
+| Valid id, no matching note | `404 { error: "Note not found" }`                       |
+| No session                 | `401 { error: "Not authenticated" }`                    |
 
 **Error handling** — wrapped around every database call, catching
 failures the caller had no control over (as opposed to validation,
@@ -111,7 +119,7 @@ try {
 
 **Tested against a real failure, not a staged one:** dropped the
 `notes` table live, with the server still running — confirmed a clean
-`500` reached the client while the *real* error
+`500` reached the client while the _real_ error
 (`Table 'nextjs_notes_demo.notes' doesn't exist`) was logged
 server-side only. Restarted the server afterward and confirmed the
 table (and seed data) came back automatically.
